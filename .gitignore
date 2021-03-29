@@ -1,5 +1,5 @@
-*.txt
-*.docx
+.txt
+.docx
 
 # Prerequisites
 *.d
