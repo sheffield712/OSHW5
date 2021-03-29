@@ -1,0 +1,34 @@
+dwelt Book.pdf
+dwelt Book
+dwelt Homeworks
+movetodir /../../..
+whereami
+dwelt lol.txt
+movetodir /Folder
+dwelt Folder
+dwelt lol.txt
+movetodir /Folder
+movetodir Foldermovetodir
+dwelt Folder
+dwelt test.out
+test.out
+dwelt Folder
+dwelt /Folder
+Dwelt /Folder
+dwelt Folder
+movetodir /../..movetodir
+movetodir /../../..
+whereami
+movetodir /../../..
+whereami
+movetodir /..
+movetodir /../..P[P;Î
+whereami
+movetodir /Users/phillipmitchell/
+movetodir /Users/phillipmitchell/Desktop
+movetodir Users/phillipmitchell/Desktop
+whereami
+movetodir /../../..
+movetodir /../
+movetodir /..
+movetodir /../..movetodir /../../..
