@@ -1,3 +1,6 @@
+dwelt lol.txt
+movetodir /Folder
+dwelt Folder
 dwelt Folder
 dwelt not.txt
 dwelt lol.txt
