@@ -1,6 +1,6 @@
-.txt
-.docx
-.DS_STORE
+*.txt
+*.docx
+*.DS_STORE
 
 # Prerequisites
 *.d
