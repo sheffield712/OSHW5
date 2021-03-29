@@ -1,3 +1,8 @@
+dwelt Folder
+dwelt not.txt
+dwelt lol.txt
+movetodir /Folder
+dwelt Folder
 dwelt Book.pdf
 dwelt Book
 dwelt Homeworks

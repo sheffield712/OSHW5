@@ -9,27 +9,27 @@
 #include <signal.h>
 
 //function prototypes
-void executeInstruction(char* inst, char **tokenInst);
+void executeInstruction(char *inst, char **tokenInst);
 void printTheList();
-void addToList(char* nextInput);
-
+void addToList(char *nextInput);
 
 // each input will have directions
-typedef struct currInput{
-   char* instruction;
-   struct currInput *next;
+typedef struct currInput
+{
+  char *instruction;
+  struct currInput *next;
 } currInput;
 
 //global variable currInput Head, current directory, and how many instructions we received.
 currInput *head;
-char* currentdir;
+char *currentdir;
 int instructions;
 
-void checkName(char* fName)
+int checkName(char *fName)
 {
   struct stat buffer;
 
-  char* tempo = malloc(sizeof(char) * (strlen(currentdir) + strlen(fName) + 4));
+  char *tempo = malloc(sizeof(char) * (strlen(currentdir) + strlen(fName) + 4));
 
   strcat(tempo, currentdir);
   strcat(tempo, "/");
@@ -46,6 +46,8 @@ void checkName(char* fName)
     {
       printf("Dwelt indeed.\n");
     }
+
+    return 1;
   }
 
   else
@@ -53,6 +55,7 @@ void checkName(char* fName)
     printf("Dwelt not.\n");
   }
   free(tempo);
+  return 0;
 }
 
 // function iteratively reverses the linked list holding the history.
@@ -74,7 +77,7 @@ void reverseTheList(currInput *root)
   head = prev;
 }
 
-currInput* readHistory()
+currInput *readHistory()
 {
   char *fileName = "savedHistory.txt";
   FILE *filePointer;
@@ -131,7 +134,8 @@ void writeDataFile()
   // write to file named savedHistory
   filePointer = fopen(fileName, "w");
 
-  if (filePointer == NULL) {
+  if (filePointer == NULL)
+  {
     fprintf(stderr, "%s\n", "There was an issue saving the history file");
     fclose(filePointer);
   }
@@ -148,10 +152,10 @@ void writeDataFile()
 }
 
 // adds the newest line of input to the list of previous inputs...
-void addToList(char* nextInput)
+void addToList(char *nextInput)
 {
   // new currInput is created...
-  currInput* temp = malloc(sizeof(currInput));
+  currInput *temp = malloc(sizeof(currInput));
   temp->instruction = malloc(sizeof(char) * strlen(nextInput));
   strcpy(temp->instruction, nextInput);
 
@@ -160,12 +164,12 @@ void addToList(char* nextInput)
 }
 
 // clears the linked list holding my history, recursively
-void clearTheList(currInput* root)
+void clearTheList(currInput *root)
 {
   if (root == NULL)
     return
 
-  clearTheList(root->next);
+        clearTheList(root->next);
 
   free(root);
 }
@@ -173,7 +177,7 @@ void clearTheList(currInput* root)
 // goes through each node in linked list to print history.
 void printTheList()
 {
-  currInput* temp = head;
+  currInput *temp = head;
   int counter = 0;
 
   while (temp != NULL)
@@ -198,7 +202,7 @@ char **tokenizeInput(char *input)
 
   // global variable tracking how many instructions were tokenized on last call to tokenizeInput
   instructions = 0;
-  char **tokens = malloc(sizeof(char*) * charAmount);
+  char **tokens = malloc(sizeof(char *) * charAmount);
   char *token = NULL;
 
   // make sure memory can be allocated...
@@ -221,7 +225,7 @@ char **tokenizeInput(char *input)
     {
       charAmount += increment;
 
-      tokens = realloc(tokens, sizeof(char*) * charAmount);
+      tokens = realloc(tokens, sizeof(char *) * charAmount);
 
       if (tokens == NULL)
       {
@@ -295,14 +299,14 @@ char *readInput()
   return buffer;
 }
 
-void replayNum(char* inst)
+void replayNum(char *inst)
 {
   int number = atoi(inst);
   // increment number because we just had replay come through.
   number++;
   int count = 0;
 
-  currInput* temp = head;
+  currInput *temp = head;
 
   while (temp != NULL)
   {
@@ -336,7 +340,7 @@ void replayNum(char* inst)
 }
 
 // executes a program and prints out its PID
-pid_t runInBackground(char** tokenInst)
+pid_t runInBackground(char **tokenInst)
 {
   pid_t pid;
   char **args;
@@ -349,9 +353,9 @@ pid_t runInBackground(char** tokenInst)
     char *end = "\0";
 
     // allocate space for all arguments
-    args = malloc(sizeof(char*) * (instructions));
+    args = malloc(sizeof(char *) * (instructions));
     // allocate space for the first argument string
-    args[0] = malloc(sizeof(char*) * (strlen(currentdir) + 2) + strlen(tokenInst[1]));
+    args[0] = malloc(sizeof(char *) * (strlen(currentdir) + 2) + strlen(tokenInst[1]));
     // create a string that takes currentdir and appends / and \0 onto it.
     args[0] = strcat(args[0], currentdir);
     args[0] = strcat(args[0], &ch);
@@ -363,7 +367,7 @@ pid_t runInBackground(char** tokenInst)
     // take the rest of the tokenized input and put them into arguements array
     for (i = 1; i < instructions - 1; i++)
     {
-      args[i] = malloc(sizeof(char*) * strlen(tokenInst[i + 1] + 1));
+      args[i] = malloc(sizeof(char *) * strlen(tokenInst[i + 1] + 1));
       args[i] = strcpy(args[i], tokenInst[i + 1]);
     }
     // last argument should be null
@@ -374,13 +378,13 @@ pid_t runInBackground(char** tokenInst)
   else
   {
     // if we receive a path to where the executable is located...
-    args = malloc(sizeof(char*) * instructions);
+    args = malloc(sizeof(char *) * instructions);
     int i;
 
     // copy tokenized strings into arguments list.
     for (i = 0; i < instructions - 1; i++)
     {
-      args[i] = malloc(sizeof(char*) * strlen(tokenInst[i + 1] + 1));
+      args[i] = malloc(sizeof(char *) * strlen(tokenInst[i + 1] + 1));
       args[i] = strcpy(args[i], tokenInst[i + 1]);
     }
     args[i] = NULL;
@@ -412,7 +416,7 @@ pid_t runInBackground(char** tokenInst)
 }
 
 // starts an executable program
-int startTheProgram(char** tokenInst)
+int startTheProgram(char **tokenInst)
 {
   pid_t pid, wpid;
   char **args;
@@ -425,9 +429,9 @@ int startTheProgram(char** tokenInst)
     char *end = "\0";
 
     // allocate space for all arguments
-    args = malloc(sizeof(char*) * (instructions));
+    args = malloc(sizeof(char *) * (instructions));
     // allocate space for the first argument string
-    args[0] = malloc(sizeof(char*) * (strlen(currentdir) + 2) + strlen(tokenInst[1]));
+    args[0] = malloc(sizeof(char *) * (strlen(currentdir) + 2) + strlen(tokenInst[1]));
     // create a string that takes currentdir and appends / and \0 onto it.
     args[0] = strcat(args[0], currentdir);
     args[0] = strcat(args[0], &ch);
@@ -439,7 +443,7 @@ int startTheProgram(char** tokenInst)
     // take the rest of the tokenized input and put them into arguements array
     for (i = 1; i < instructions - 1; i++)
     {
-      args[i] = malloc(sizeof(char*) * strlen(tokenInst[i + 1] + 1));
+      args[i] = malloc(sizeof(char *) * strlen(tokenInst[i + 1] + 1));
       args[i] = strcpy(args[i], tokenInst[i + 1]);
     }
     // last argument should be null
@@ -450,13 +454,13 @@ int startTheProgram(char** tokenInst)
   else
   {
     // if we receive a path to where the executable is located...
-    args = malloc(sizeof(char*) * instructions);
+    args = malloc(sizeof(char *) * instructions);
     int i;
 
     // copy tokenized strings into arguments list.
     for (i = 0; i < instructions - 1; i++)
     {
-      args[i] = malloc(sizeof(char*) * strlen(tokenInst[i + 1] + 1));
+      args[i] = malloc(sizeof(char *) * strlen(tokenInst[i + 1] + 1));
       args[i] = strcpy(args[i], tokenInst[i + 1]);
     }
     args[i] = NULL;
@@ -484,7 +488,8 @@ int startTheProgram(char** tokenInst)
   else
   {
     // wait for the child process to terminate before continuing.
-    do {
+    do
+    {
       wpid = waitpid(pid, &status, WUNTRACED);
     } while (!WIFEXITED(status) && !WIFSIGNALED(status));
   }
@@ -526,10 +531,10 @@ void repeatProcess(char **tokenInst)
     char *end = "\0";
 
     // allocate space for multiple arguments
-    args = malloc(sizeof(char*) * (instructions));
+    args = malloc(sizeof(char *) * (instructions));
 
     // allocate space for the first argument string
-    args[0] = malloc(sizeof(char*) * (strlen(currentdir) + 2) + strlen(tokenInst[1]));
+    args[0] = malloc(sizeof(char *) * (strlen(currentdir) + 2) + strlen(tokenInst[1]));
     args[0] = strcat(args[0], currentdir);
     // append the / character to the end of the path...
     args[0] = strcat(args[0], &ch);
@@ -542,7 +547,7 @@ void repeatProcess(char **tokenInst)
     for (i = 1; i < instructions - 2; i++)
     {
       // put the tokenized strings into the argument list
-      args[i] = malloc(sizeof(char*) * strlen(tokenInst[i + 1] + 1));
+      args[i] = malloc(sizeof(char *) * strlen(tokenInst[i + 1] + 1));
       args[i] = strcpy(args[i], tokenInst[i + 1]);
     }
     // mark the last argument as NULL.
@@ -553,13 +558,13 @@ void repeatProcess(char **tokenInst)
   else
   {
     // if we receive a path to where the executable is located, allocate space for args
-    args = malloc(sizeof(char*) * (instructions - 1));
+    args = malloc(sizeof(char *) * (instructions - 1));
     int i;
 
     for (i = 0; i < instructions - 2; i++)
     {
       // put each tokenized input into the argument array.
-      args[i] = malloc(sizeof(char*) * strlen(tokenInst[i + 1] + 1));
+      args[i] = malloc(sizeof(char *) * strlen(tokenInst[i + 1] + 1));
       args[i] = strcpy(args[i], tokenInst[i + 1]);
     }
     args[i] = NULL;
@@ -602,7 +607,7 @@ void repeatProcess(char **tokenInst)
 }
 
 // sees what the user types in and calls the appropriate helper command.
-void executeInstruction(char* inst, char **tokenInst)
+void executeInstruction(char *inst, char **tokenInst)
 {
   // No command was sent...
   if (inst == NULL || strcmp(inst, "") == 0 || (strlen(inst) < 2))
@@ -644,7 +649,7 @@ void executeInstruction(char* inst, char **tokenInst)
       strcat(temp, currentdir);
       strcat(temp, tokenInst[1]);
 
-      char* fullpath = realpath(temp, NULL);
+      char *fullpath = realpath(temp, NULL);
 
       // see if the path the user entered is a real path...
       if (fullpath == NULL)
@@ -663,11 +668,13 @@ void executeInstruction(char* inst, char **tokenInst)
   else if (strcmp(tokenInst[0], "replay") == 0)
   {
 
-    if (instructions < 2) {
+    if (instructions < 2)
+    {
       printf("Not enough instructions passed... only see %d instructions\n", instructions);
     }
 
-    else {
+    else
+    {
       int stringLen = strlen(tokenInst[1]);
 
       int i = 0;
@@ -710,7 +717,7 @@ void executeInstruction(char* inst, char **tokenInst)
   }
 
   // kill command
-  else if(strcmp(tokenInst[0], "dalek") == 0)
+  else if (strcmp(tokenInst[0], "dalek") == 0)
   {
     if (instructions < 2)
       printf("%s\n", "Not enough instructions were passed with this argument");
@@ -720,7 +727,7 @@ void executeInstruction(char* inst, char **tokenInst)
   }
 
   // dwelt command
-  else if(strcmp(tokenInst[0], "dwelt") == 0)
+  else if (strcmp(tokenInst[0], "dwelt") == 0)
   {
     if (instructions < 2)
       printf("%s\n", "Not enough instructions were passed with this argument");
@@ -749,7 +756,6 @@ void executeInstruction(char* inst, char **tokenInst)
   // User sent a command that is not supported by the shell.
   else
     printf("%s\n", "Invalid/Unsupported command.");
-
 }
 
 // program loops until user types in "byebye"
