@@ -7,6 +7,7 @@
 #include <stdlib.h>
 #include <ctype.h>
 #include <signal.h>
+#include <fcntl.h>
 
 //function prototypes
 void executeInstruction(char *inst, char **tokenInst);
@@ -56,6 +57,37 @@ int checkName(char *fName)
   }
   free(tempo);
   return 0;
+}
+
+void makeTheFile(char *fName)
+{
+  char *pathFile = malloc(sizeof(char) * (strlen(currentdir) + strlen(fName) + 4));
+
+  sprintf(pathFile, "%s/%s", currentdir, fName);
+
+  mode_t mode = S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH;
+
+  int filedescriptor = open(pathFile, O_WRONLY | O_EXCL | O_CREAT | O_TRUNC, mode);
+
+  if (filedescriptor < 0)
+    printf("ERROR: FILENAME ALREADY EXISTS");
+
+  else
+  {
+    FILE *f_write;
+    f_write = fopen(pathFile, "w");
+    fputs("Draft\n", f_write);
+
+    printf("File: %s was created successfully in path: %s\n", fName, currentdir);
+
+    if (fclose(f_write))
+    {
+      perror("Failed closing the file... terminating program");
+      exit(1);
+    }
+  }
+
+  free(pathFile);
 }
 
 // function iteratively reverses the linked list holding the history.
@@ -661,6 +693,25 @@ void executeInstruction(char *inst, char **tokenInst)
         currentdir = fullpath;
       }
       free(temp);
+    }
+  }
+
+  // make file but it's spelled maik
+  else if (strcmp(tokenInst[0], "maik") == 0)
+  {
+    if (instructions < 2)
+    {
+      printf("Not enough instructions passed... only see %d instruction\n", instructions);
+    }
+
+    // else if (checkName(tokenInst[1]) == 1)
+    // {
+    //   printf("ERROR: FILE NAME ALREADY EXISTS");
+    // }
+
+    else
+    {
+      makeTheFile(tokenInst[1]);
     }
   }
 
