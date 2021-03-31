@@ -61,24 +61,52 @@ int checkName(char *fName)
 
 void makeTheFile(char *fName)
 {
-  char *pathFile = malloc(sizeof(char) * (strlen(currentdir) + strlen(fName) + 4));
-
-  sprintf(pathFile, "%s/%s", currentdir, fName);
-
+  int filedescriptor;
+  int absolute = -1;
   mode_t mode = S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH;
+  char *pathFile = NULL;
+  FILE *f_write;
 
-  int filedescriptor = open(pathFile, O_WRONLY | O_EXCL | O_CREAT | O_TRUNC, mode);
+  // a relative path is being used.
+  if (fName[0] != '/')
+  {
+    pathFile = malloc(sizeof(char) * (strlen(currentdir) + strlen(fName) + 4));
 
-  if (filedescriptor < 0)
+    sprintf(pathFile, "%s/%s", currentdir, fName);
+
+    filedescriptor = open(pathFile, O_WRONLY | O_EXCL | O_CREAT | O_TRUNC, mode);
+  }
+
+  // an absolute path was sent.
+  else
+  {
+    absolute = 1;
+    filedescriptor = open(fName, O_WRONLY | O_EXCL | O_CREAT | O_TRUNC, mode);
+  }
+
+  if (filedescriptor < 0 && absolute == 1)
+    printf("ERROR: FILENAME ALREADY EXISTS OR YOU SENT A BAD PATH...");
+
+  else if (filedescriptor < 0)
     printf("ERROR: FILENAME ALREADY EXISTS");
 
   else
   {
-    FILE *f_write;
-    f_write = fopen(pathFile, "w");
+    if (absolute == 1)
+      f_write = fopen(fName, "w");
+    else
+    {
+      f_write = fopen(pathFile, "w");
+      free(pathFile);
+    }
+
     fputs("Draft\n", f_write);
 
-    printf("File: %s was created successfully in path: %s\n", fName, currentdir);
+    if (absolute != 1)
+      printf("File: %s was created successfully in path: %s\n", fName, currentdir);
+
+    else
+      printf("File was created successfully in path: %s\n", fName);
 
     if (fclose(f_write))
     {
@@ -86,8 +114,6 @@ void makeTheFile(char *fName)
       exit(1);
     }
   }
-
-  free(pathFile);
 }
 
 // function iteratively reverses the linked list holding the history.
