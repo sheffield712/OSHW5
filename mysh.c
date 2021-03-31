@@ -13,6 +13,7 @@
 void executeInstruction(char *inst, char **tokenInst);
 void printTheList();
 void addToList(char *nextInput);
+int makeTheFile(char *fName);
 
 // each input will have directions
 typedef struct currInput
@@ -28,11 +29,9 @@ int instructions;
 
 void makeCopy(char **tokenInst)
 {
-  // from file is tokenInst[1]
-  // to file is tokenInst[2]
   FILE *fromFile = NULL;
   FILE *toFile = NULL;
-  int freeOne, freeTwo = 0;
+  int freeOne = 0, freeTwo = 0, fileMade = 0;
   char ch;
   char *fromPath;
   char *toPath;
@@ -42,24 +41,44 @@ void makeCopy(char **tokenInst)
   {
     fromPath = malloc(sizeof(char) * (strlen(currentdir) + strlen(tokenInst[1]) + 4));
     sprintf(fromPath, "%s/%s", currentdir, tokenInst[1]);
+    // reminder to free the malloced path for later.
     freeOne = 1;
   }
 
+  // absolute path was sent as the source file.
   else
     fromPath = tokenInst[1];
 
+  // relative path was sent as the destination file.
   if (tokenInst[2][0] != '/')
   {
     toPath = malloc(sizeof(char) * (strlen(currentdir) + strlen(tokenInst[2]) + 4));
     sprintf(toPath, "%s/%s", currentdir, tokenInst[2]);
+    // reminder to free the malloced path later.
     freeTwo = 1;
   }
 
+  // absolute path was sent as the destination file.
   else
     toPath = tokenInst[2];
 
+  // create the file, which should not exist yet...
+  fileMade = makeTheFile(tokenInst[2]);
+
+  // file wasn't properly made, need to exit this function after properly freeing memory.
+  if (fileMade == 0)
+  {
+    if (freeOne)
+      free(fromPath);
+    if (freeTwo)
+      free(toPath);
+
+    return;
+  }
+
   // need read permissions from here.
   fromFile = fopen(fromPath, "r");
+
   // need write permissions to here.
   toFile = fopen(toPath, "w");
 
@@ -136,7 +155,7 @@ int checkName(char *fName)
   return 0;
 }
 
-void makeTheFile(char *fName)
+int makeTheFile(char *fName)
 {
   int filedescriptor;
   int absolute = -1;
@@ -162,10 +181,18 @@ void makeTheFile(char *fName)
   }
 
   if (filedescriptor < 0 && absolute == 1)
-    printf("ERROR: FILENAME ALREADY EXISTS OR YOU SENT A BAD PATH...");
+  {
+    printf("ERROR: FILENAME ALREADY EXISTS OR YOU SENT AN INVALID PATH...");
+
+    return 0;
+  }
 
   else if (filedescriptor < 0)
-    printf("ERROR: FILENAME ALREADY EXISTS");
+  {
+    printf("ERROR: FILENAME ALREADY EXISTS OR YOU SENT AN INVALID PATH...");
+
+    return 0;
+  }
 
   else
   {
@@ -190,6 +217,8 @@ void makeTheFile(char *fName)
       perror("Failed closing the file... terminating program");
       exit(1);
     }
+
+    return 1;
   }
 }
 
