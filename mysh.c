@@ -14,6 +14,7 @@ void executeInstruction(char *inst, char **tokenInst);
 void printTheList();
 void addToList(char *nextInput);
 int makeTheFile(char *fName);
+void printInstructions(void);
 
 // each input will have directions
 typedef struct currInput
@@ -122,15 +123,26 @@ void makeCopy(char **tokenInst)
     free(toPath);
 }
 
-int checkName(char *fName)
+void checkName(char *fName)
 {
   struct stat buffer;
+  char *tempo;
+  int freeTempo = 0;
 
-  char *tempo = malloc(sizeof(char) * (strlen(currentdir) + strlen(fName) + 4));
+  // a relative path was sent.
+  if (fName[0] != '/')
+  {
+    tempo = malloc(sizeof(char) * (strlen(currentdir) + strlen(fName) + 4));
+    freeTempo = 1;
 
-  strcat(tempo, currentdir);
-  strcat(tempo, "/");
-  strcat(tempo, fName);
+    strcat(tempo, currentdir);
+    strcat(tempo, "/");
+    strcat(tempo, fName);
+  }
+
+  // an absolute path was sent.
+  else
+    tempo = fName;
 
   if (stat(tempo, &buffer) == 0)
   {
@@ -143,16 +155,14 @@ int checkName(char *fName)
     {
       printf("Dwelt indeed.\n");
     }
-
-    return 1;
   }
 
   else
   {
     printf("Dwelt not.\n");
   }
-  free(tempo);
-  return 0;
+  if (freeTempo)
+    free(tempo);
 }
 
 int makeTheFile(char *fName)
@@ -945,6 +955,11 @@ void executeInstruction(char *inst, char **tokenInst)
       makeCopy(tokenInst);
   }
 
+  else if (strcmp(tokenInst[0], "help") == 0)
+  {
+    printInstructions();
+  }
+
   // User sent a command that is not supported by the shell.
   else
     printf("%s\n", "Invalid/Unsupported command.");
@@ -981,16 +996,40 @@ void runMainProgram()
   }
 }
 
+void printInstructions(void)
+{
+  printf("\'whereami\' will tell you the current directory you are in.\n");
+  printf("\'movetodir <DIRECTORY>\' will move you to a directory. Use a \'/\' at the beginning for an absolute path.\n");
+  printf("\'history\' will tell you the history of commands you have tried.\n");
+  printf("\'history -c\' will clear your history.\n");
+  printf("\'replay <NUMBER>\' will replay an old command from your history.\n");
+  printf("\'start <FILENAME>\' will start an executable. Use a \'/\' at the beginning for an absolute path.\n");
+  printf("\'background <FILENAME>\' will start an executable as a background process. Use a \'/\' at the beginning for an absolute path.\n");
+  printf("\'dalek <PID>\' will kill a background process.\n");
+  printf("\'repeat <NUMTIMES> <FILENAME>\' will open the filename the number of times you request. Use a \'/\' at the beginning for an absolute path.\n");
+  printf("\'maik <FILENAME>\' will make a file. Use a \'/\' at the beginning for an absolute path.\n");
+  printf("\'coppy <FILE-FROM> <FILE-TO>\' will copy contents from file to a file. Use \'/\' at the beginning for absolute paths.\n");
+  printf("\'dwelt <FILENAME>\' will tell you if a file/directory exist. Use a \'/\' at the beginning for an absolute path.\n");
+  printf("\'help\' will re-print these instructions.\n");
+  printf("\'byebye\' will exit the program\n");
+}
+
 int main()
 {
   // get the current directory at the start of running the program and set it as currentdir
-  char cwd[1000];
+  char cwd[4000];
   getcwd(cwd, sizeof(cwd));
   currentdir = cwd;
 
   // initialize head to NULL before starting, then read in any possible history.
   head = NULL;
   head = readHistory();
+
+  printf("\n*** WELCOME TO MY TERMINAL EMULTAOR ***\n\n");
+  printf("** The commands you can run are as follows: **\n\n");
+
+  // print instructions
+  printInstructions();
 
   // run the main program...
   runMainProgram();
