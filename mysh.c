@@ -126,7 +126,7 @@ void makeCopy(char **tokenInst)
 void checkName(char *fName)
 {
   struct stat buffer;
-  char *tempo;
+  char *tempo = NULL;
   int freeTempo = 0;
 
   // a relative path was sent.
