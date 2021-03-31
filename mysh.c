@@ -26,6 +26,83 @@ currInput *head;
 char *currentdir;
 int instructions;
 
+void makeCopy(char **tokenInst)
+{
+  // from file is tokenInst[1]
+  // to file is tokenInst[2]
+  FILE *fromFile = NULL;
+  FILE *toFile = NULL;
+  int freeOne, freeTwo = 0;
+  char ch;
+  char *fromPath;
+  char *toPath;
+
+  // relative path was sent as the source file.
+  if (tokenInst[1][0] != '/')
+  {
+    fromPath = malloc(sizeof(char) * (strlen(currentdir) + strlen(tokenInst[1]) + 4));
+    sprintf(fromPath, "%s/%s", currentdir, tokenInst[1]);
+    freeOne = 1;
+  }
+
+  else
+    fromPath = tokenInst[1];
+
+  if (tokenInst[2][0] != '/')
+  {
+    toPath = malloc(sizeof(char) * (strlen(currentdir) + strlen(tokenInst[2]) + 4));
+    sprintf(toPath, "%s/%s", currentdir, tokenInst[2]);
+    freeTwo = 1;
+  }
+
+  else
+    toPath = tokenInst[2];
+
+  // need read permissions from here.
+  fromFile = fopen(fromPath, "r");
+  // need write permissions to here.
+  toFile = fopen(toPath, "w");
+
+  // ensure that both files were opened correctly.
+  if (fromFile == NULL && toFile == NULL)
+  {
+    printf("Error opening BOTH the SOURCE and DESTINATION files.");
+  }
+
+  else if (fromFile == NULL)
+  {
+    printf("Error opening the SOURCE file. Make sure your path is correct.");
+    // close the file that was actually opened and free memory.
+    fclose(toFile);
+  }
+
+  else if (toFile == NULL)
+  {
+    printf("Error opening the DESTINATION file. Make sure your path is correct.");
+    // close the file that was actually opened and free memory.
+    fclose(fromFile);
+  }
+
+  // both files were opened successfully. Copy character by character into destination.
+  else
+  {
+    while ((ch = fgetc(fromFile)) != EOF)
+    {
+      fputc(ch, toFile);
+    }
+    // print out success message.
+    printf("\nSuccessfully copied contents from %s -> into -> %s\n", fromPath, toPath);
+    // close up the files.
+    fclose(fromFile);
+    fclose(toFile);
+  }
+  // free the files that were malloced.
+  if (freeOne == 1)
+    free(fromPath);
+  if (freeTwo == 1)
+    free(toPath);
+}
+
 int checkName(char *fName)
 {
   struct stat buffer;
@@ -828,6 +905,15 @@ void executeInstruction(char *inst, char **tokenInst)
     }
 
     printf("\n");
+  }
+
+  else if (strcmp(tokenInst[0], "coppy") == 0)
+  {
+    if (instructions < 3)
+      printf("%s", "Not enough instructions were passed with this argument");
+
+    else
+      makeCopy(tokenInst);
   }
 
   // User sent a command that is not supported by the shell.
