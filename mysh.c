@@ -171,7 +171,7 @@ int makeTheFile(char *fName)
   int absolute = -1;
   mode_t mode = S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH;
   char *pathFile = NULL;
-  FILE *f_write;
+  FILE *f_write = NULL;
 
   // a relative path is being used.
   if (fName[0] != '/')
@@ -254,7 +254,7 @@ void reverseTheList(currInput *root)
 currInput *readHistory()
 {
   char *fileName = "savedHistory.txt";
-  FILE *filePointer;
+  FILE *filePointer = NULL;
   char *str = malloc(sizeof(char) * 2048);
   int counter = 0;
   // currInput *temp = NULL;
@@ -302,7 +302,7 @@ currInput *readHistory()
 void writeDataFile()
 {
   char *fileName = "savedHistory.txt";
-  FILE *filePointer;
+  FILE *filePointer = NULL;
   currInput *current = head;
 
   // write to file named savedHistory
