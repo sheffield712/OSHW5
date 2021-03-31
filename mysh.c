@@ -807,6 +807,7 @@ void executeInstruction(char *inst, char **tokenInst)
   {
     clearTheList(head);
     head = NULL;
+    printf("Successfully cleared history\n");
   }
 
   // user is requesting to move to a different directory.
