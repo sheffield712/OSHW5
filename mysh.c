@@ -818,24 +818,30 @@ void executeInstruction(char *inst, char **tokenInst)
 
     else
     {
-      // allocate space and create a string for the new path, which will be appended
-      // to currentdir.
-      char *temp = malloc(sizeof(char) * 2048);
-      strcat(temp, currentdir);
-      strcat(temp, tokenInst[1]);
+      char *temp = NULL;
 
-      char *fullpath = realpath(temp, NULL);
+      if (tokenInst[1][0] != '/')
+      {
+        temp = malloc(sizeof(char) * (strlen(currentdir) + strlen(tokenInst[1]) + 4));
+        sprintf(temp, "%s/%s", currentdir, tokenInst[1]);
+      }
 
+      // absolute path was sent as the source file.
+      else
+        temp = tokenInst[1];
+
+      temp = realpath(temp, NULL);
       // see if the path the user entered is a real path...
-      if (fullpath == NULL)
+      if (temp == NULL)
+      {
         printf("%s\n", "Directory does not exist");
+      }
 
       else
       {
-        printf("Successfully changed directory to %s\n", fullpath);
-        currentdir = fullpath;
+        printf("Successfully changed directory to %s\n", temp);
+        currentdir = temp;
       }
-      free(temp);
     }
   }
 
@@ -846,11 +852,6 @@ void executeInstruction(char *inst, char **tokenInst)
     {
       printf("Not enough instructions passed... only see %d instruction\n", instructions);
     }
-
-    // else if (checkName(tokenInst[1]) == 1)
-    // {
-    //   printf("ERROR: FILE NAME ALREADY EXISTS");
-    // }
 
     else
     {
@@ -1009,7 +1010,7 @@ void printInstructions(void)
   printf("\'dalek <PID>\' will kill a background process.\n");
   printf("\'repeat <NUMTIMES> <FILENAME>\' will open the filename the number of times you request. Use a \'/\' at the beginning for an absolute path.\n");
   printf("\'maik <FILENAME>\' will make a file. Use a \'/\' at the beginning for an absolute path.\n");
-  printf("\'coppy <FILE-FROM> <FILE-TO>\' will copy contents from file to a file. Use \'/\' at the beginning for absolute paths.\n");
+  printf("\'coppy <FILE-FROM> <NEW-COPY-NAME>\' will copy contents from file to a new file.\n");
   printf("\'dwelt <FILENAME>\' will tell you if a file/directory exist. Use a \'/\' at the beginning for an absolute path.\n");
   printf("\'help\' will re-print these instructions.\n");
   printf("\'byebye\' will exit the program\n");
